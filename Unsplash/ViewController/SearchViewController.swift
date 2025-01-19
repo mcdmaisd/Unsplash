@@ -15,8 +15,13 @@ class SearchViewController: BaseViewController {
     private let statusLabel = UILabel()
     
     private var total = 0
-    private var keyword = ""
-    private var page = Constant.page
+    private var keyword = "" {
+        willSet {
+            orderButton.isHidden = newValue.isEmpty
+            colorSwitchStackView.isHidden = newValue.isEmpty
+        }
+    }
+    private var page = UrlConstants.page
     private var colorButtons: [UISwitch] = []
     private var searchResult: [Photo] = [] {
         didSet {
@@ -74,9 +79,12 @@ class SearchViewController: BaseViewController {
     }
     
     override func configureView() {
+        orderButton.isHidden = true
+        
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.bouncesHorizontally = false
         
+        colorSwitchStackView.isHidden = true
         colorSwitchStackView.spacing = 5
         colorSwitchStackView.distribution = .fillEqually
         
@@ -101,6 +109,8 @@ class SearchViewController: BaseViewController {
     
     @objc
     private func switchTapped(_ sender: UISwitch) {
+        if keyword.isEmpty { return }
+        
         for button in colorButtons {
             if button.tag == sender.tag {
                 button.isOn = sender.isOn
@@ -114,6 +124,7 @@ class SearchViewController: BaseViewController {
     
     @objc
     private func orderButtonTapped(_ sender: UIButton) {
+        if keyword.isEmpty { return }
         sender.isSelected.toggle()
         requestSearch()
     }
@@ -121,7 +132,7 @@ class SearchViewController: BaseViewController {
     private func requestSearch() {
         guard let searchbar = navigationItem.searchController?.searchBar else { return }
         navigationItem.searchController?.searchBar.text = keyword
-        page = Constant.page
+        page = UrlConstants.page
         searchBarSearchButtonClicked(searchbar)
     }
     
@@ -147,16 +158,14 @@ class SearchViewController: BaseViewController {
     }
     
     private func toggleUI() {
-        orderButton.isHidden = searchResult.isEmpty
-        colorSwitchStackView.isHidden = searchResult.isEmpty
         collectionView.isHidden = searchResult.isEmpty
         statusLabel.isHidden = !searchResult.isEmpty
     }
     
     private func makeUrl() -> String {
-        let filter = orderButton.isSelected ? UrlComponent.shared.orderByLatest : UrlComponent.shared.orderByRelevant
+        let filter = orderButton.isSelected ? UrlConstants.orderByLatest : UrlConstants.orderByRelevant
         let isOnSwitch = colorButtons.filter({ $0.isOn })
-        let color = isOnSwitch.isEmpty ? "" : Constant.colorKeys[isOnSwitch.first?.tag ?? -1]
+        let color = isOnSwitch.isEmpty ? "" : UrlConstants.colorKeys[isOnSwitch.first?.tag ?? -1]
         let url = UrlComponent.shared.search(keyword, filter, color, page)
         
         return url
@@ -182,8 +191,16 @@ class SearchViewController: BaseViewController {
 extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let text = searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        if text.isEmpty { return }
-        page = Constant.page
+        
+        if text.isEmpty {
+            keyword = text
+            searchBar.text = text
+            searchResult.removeAll()
+            presentAlert(message: Constants.emptyKeyword)
+            return
+        }
+        
+        page = UrlConstants.page
         keyword = text
         searchImage()
     }
@@ -233,10 +250,6 @@ extension SearchViewController: UICollectionViewDataSourcePrefetching {
                 }
             }
         }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
-        print(indexPaths)
     }
 }
 

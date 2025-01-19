@@ -42,7 +42,7 @@ class TopicViewController: BaseViewController {
     }
     
     override func configureView() {
-        topicLabel.text = "OUR TOPIC"
+        topicLabel.text = Constants.topicTitle
         topicLabel.font = .boldSystemFont(ofSize: 30)
         topicLabel.sizeToFit()
     }
@@ -74,19 +74,35 @@ class TopicViewController: BaseViewController {
         }
     }
     
-    private func configureRefreshControl() {
-        tableView.refreshControl = UIRefreshControl()
-        tableView.refreshControl?.attributedTitle = NSAttributedString(string: "Pull To Refresh")
-        tableView.refreshControl?.addTarget(self, action: #selector(whenTableViewPullDown), for: .valueChanged)
+    private func getTimeInterval() -> Int {
+        return Int(Date().timeIntervalSince(lastRefreshTime ?? Date()))
     }
     
+    private func configureRefreshControl() {
+        tableView.refreshControl = UIRefreshControl()
+        tableView.refreshControl?.addTarget(self, action: #selector(whenTableViewPullDown), for: .valueChanged)
+    }
+        
     @objc
     private func whenTableViewPullDown() {
+        let isMinuteAfter = getTimeInterval() >= Constants.minute
+        let message = isMinuteAfter 
+            ? Constants.pleaseWait
+            : "\(Constants.minute - getTimeInterval())\(Constants.lessThenMinuteSuffix)"
+        
         if lastRefreshTime == nil {
             lastRefreshTime = Date()
-        } else if Int(Date().timeIntervalSince(lastRefreshTime ?? Date())) < 60 {
-            self.tableView.refreshControl?.endRefreshing()
+            tableView.refreshControl?.attributedTitle = NSAttributedString(string: Constants.pleaseWait)
+        } else if getTimeInterval() < Constants.minute {
+            tableView.refreshControl?.attributedTitle = NSAttributedString(string: message)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.tableView.refreshControl?.endRefreshing()
+            }
+            
             return
+        } else {
+            tableView.refreshControl?.attributedTitle = NSAttributedString(string: message)
         }
         
         lastRefreshTime = Date()

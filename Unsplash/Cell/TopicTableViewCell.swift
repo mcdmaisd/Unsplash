@@ -77,3 +77,9 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
         delegate?.sendData(tag, row)
     }
 }
+
+extension TopicTableViewCell: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        
+    }
+}

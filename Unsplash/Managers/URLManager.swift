@@ -7,9 +7,11 @@
 
 import Foundation
 
-struct Constant {
+struct UrlConstants {
     static let perPage = 20
     static let page = 1
+    static let orderByLatest = "latest"
+    static let orderByRelevant = "relevant"
     static let colorKeys = ["black", "white", "yellow", "red", "purple", "green", "blue"]
 }
 
@@ -28,8 +30,6 @@ class UrlComponent {
     private let perPageQuery = "per_page"
     private let orderQuery = "order_by"
     private let colorQuery = "color"
-    private(set) var orderByLatest = "latest"
-    private(set) var orderByRelevant = "relevant"
     private lazy var client = URLQueryItem(name: idQuery, value: Unsplash.id)
 
     private init() { }
@@ -45,7 +45,7 @@ class UrlComponent {
         var components = configureBaseComponents()
         components.path = topicPath + "/" + id + photoPath
 
-        let page = URLQueryItem(name: pageQuery, value: String(Constant.page))
+        let page = URLQueryItem(name: pageQuery, value: String(UrlConstants.page))
         components.queryItems = [page, client]
         
         return components.url?.absoluteString ?? Constants.emptyUrl
@@ -57,7 +57,7 @@ class UrlComponent {
         
         let keyword = URLQueryItem(name: keywordQuery, value: query)
         let page = URLQueryItem(name: pageQuery, value: String(page))
-        let perPage = URLQueryItem(name: perPageQuery, value: String(Constant.perPage))
+        let perPage = URLQueryItem(name: perPageQuery, value: String(UrlConstants.perPage))
         let order = URLQueryItem(name: orderQuery, value: order)
         let colorItem = URLQueryItem(name: colorQuery, value: color)
         

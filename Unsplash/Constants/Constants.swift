@@ -19,6 +19,11 @@ struct Constants {
     static let prefixTitles = ["크기", "조회수", "다운로드"]
     static let segmentTitles = ["조회", "다운로드"]
     static let emptyUrl = "EMPTY URL"
+    static let emptyKeyword = "검색어를 입력하세요"
+    static let pleaseWait = "잠시만 기다려주세요"
+    static let lessThenMinuteSuffix = "초 후에 새로고침 가능"
+    static let topicTitle = "OUR TOPIC"
+    static let minute = 60
     static let topicDictionary: [String: String] = [
         "architecture-interior": "건축 및 인테리어",
         "golden-hour": "골든 아워",
