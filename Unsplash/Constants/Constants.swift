@@ -18,6 +18,7 @@ struct Constants {
     static let emptySearchResult = "검색 결과가 없어요."
     static let prefixTitles = ["크기", "조회수", "다운로드"]
     static let segmentTitles = ["조회", "다운로드"]
+    static let emptyUrl = "EMPTY URL"
     static let topicDictionary: [String: String] = [
         "architecture-interior": "건축 및 인테리어",
         "golden-hour": "골든 아워",

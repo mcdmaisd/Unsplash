@@ -16,6 +16,7 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
     private var result: [Photo] = [] {
         didSet {
             collectionView.reloadData()
+            collectionView.scrollToItem(at: IndexPath(item: -1, section: 0), at: .left, animated: false)
         }
     }
     

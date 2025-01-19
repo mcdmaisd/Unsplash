@@ -12,6 +12,7 @@ class TopicViewController: BaseViewController {
     private let group = DispatchGroup()
     private let topicLabel = UILabel()
     private let tableView = UITableView()
+    
     private var sectionTitles: [(String, String)] = []
     private var topics: [[Photo]] = [[], [], []]
     private var lastRefreshTime: Date?
@@ -60,7 +61,7 @@ class TopicViewController: BaseViewController {
     
     private func requestTopics() {
         for (i, title) in sectionTitles.enumerated() {
-            let url = UrlComponent.Query.topic(id: title.0).result
+            let url = UrlComponent.shared.topic(title.0)
             group.enter()
             NetworkManager.shared.requestAPI(url) { (data: [Photo]) in
                 self.topics[i] = data
@@ -144,8 +145,10 @@ extension TopicViewController: sendData {
         let item = topics[tag][row]
         let id = item.id
         let vc = DetailViewController()
-        let url = UrlComponent.Query.statistics(id: id).result
+        let url = UrlComponent.shared.statistics(id)
+        
         vc.data = item
+        
         NetworkManager.shared.requestAPI(url) { data in
             vc.statistics = data
             self.navigationController?.pushViewController(vc, animated: true)

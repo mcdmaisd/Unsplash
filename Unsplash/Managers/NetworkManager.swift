@@ -18,6 +18,7 @@ class NetworkManager {
             .responseDecodable(of: T.self) { response in
                 switch response.result {
                 case .success(let value):
+                    dump(value)
                     completionHandler(value)
                 case .failure(let error):
                     dump(error)

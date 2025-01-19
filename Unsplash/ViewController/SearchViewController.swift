@@ -16,7 +16,7 @@ class SearchViewController: BaseViewController {
     
     private var total = 0
     private var keyword = ""
-    private var page = UrlConstant.page
+    private var page = Constant.page
     private var colorButtons: [UISwitch] = []
     private var searchResult: [Photo] = [] {
         didSet {
@@ -121,7 +121,7 @@ class SearchViewController: BaseViewController {
     private func requestSearch() {
         guard let searchbar = navigationItem.searchController?.searchBar else { return }
         navigationItem.searchController?.searchBar.text = keyword
-        page = UrlConstant.page
+        page = Constant.page
         searchBarSearchButtonClicked(searchbar)
     }
     
@@ -154,10 +154,10 @@ class SearchViewController: BaseViewController {
     }
     
     private func makeUrl() -> String {
-        let filter = orderButton.isSelected ? UrlConstant.orderByLatest : UrlConstant.orderByRelevant
+        let filter = orderButton.isSelected ? UrlComponent.shared.orderByLatest : UrlComponent.shared.orderByRelevant
         let isOnSwitch = colorButtons.filter({ $0.isOn })
-        let color = isOnSwitch.isEmpty ? "" : UrlConstant.colorKeys[isOnSwitch.first?.tag ?? -1]
-        let url = UrlComponent.Query.search(query: keyword, order: filter, color: color, page: page).result
+        let color = isOnSwitch.isEmpty ? "" : Constant.colorKeys[isOnSwitch.first?.tag ?? -1]
+        let url = UrlComponent.shared.search(keyword, filter, color, page)
         
         return url
     }
@@ -183,7 +183,7 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let text = searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if text.isEmpty { return }
-        page = UrlConstant.page
+        page = Constant.page
         keyword = text
         searchImage()
     }
@@ -208,8 +208,11 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         let row = indexPath.row
         let id = searchResult[row].id
         let vc = DetailViewController()
+        
+        let url = UrlComponent.shared.statistics(id)
+        
         vc.data = searchResult[row]
-        let url = UrlComponent.Query.statistics(id: id).result
+
         NetworkManager.shared.requestAPI(url) { data in
             vc.statistics = data
             self.navigationController?.pushViewController(vc, animated: true)
