@@ -17,4 +17,22 @@ struct Constants {
     static let emptySearchResult = "검색 결과가 없어요."
     static let prefixTitles = ["크기", "조회수", "다운로드"]
     static let segmentTitles = ["조회", "다운로드"]
+    static let topicDictionary: [String: String] = [
+        "architecture-interior": "건축 및 인테리어",
+        "golden-hour": "골든 아워",
+        "wallpapers": "배경 화면",
+        "nature": "자연",
+        "3d-renders": "3D 렌더링",
+        "travel": "여행하다",
+        "textures-patterns": "텍스처 및 패턴",
+        "street-photography": "거리 사진",
+        "film": "필름",
+        "archival": "기록의",
+        "experimental": "실험적인",
+        "animals": "동물",
+        "fashion-beauty": "패션 및 뷰티",
+        "people": "사람",
+        "business-work": "비즈니스 및 업무",
+        "food-drink": "식음료"
+    ]
 }

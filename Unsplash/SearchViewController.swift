@@ -197,7 +197,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let row = indexPath.row
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCollectionViewCell.id, for: indexPath) as! SearchCollectionViewCell
-        
+
         cell.configureData(searchResult[row])
         
         return cell
@@ -205,12 +205,16 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        let row = indexPath.row
+        let id = searchResult[row].id
         let vc = DetailViewController()
-        vc.data = searchResult[indexPath.row]
-        configureNavigationBar(vc)
-        navigationController?.pushViewController(vc, animated: true)
+        vc.data = searchResult[row]
+        let url = UrlComponent.Query.statistics(id: id).result
+        NetworkManager.shared.requestAPI(url) { data in
+            vc.statistics = data
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
-    
 }
 
 extension SearchViewController: UICollectionViewDataSourcePrefetching {

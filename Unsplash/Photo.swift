@@ -7,18 +7,10 @@
 
 import Foundation
 
-struct Topic: Codable {
-    
-}
-
 struct Search: Codable {
     let total: Int
     let total_pages: Int
     let results: [Photo]
-}
-
-struct Statistics: Codable {
-    
 }
 
 struct Photo: Codable {
@@ -34,7 +26,6 @@ struct Photo: Codable {
 struct User: Codable {
     let name: String
     let profile_image: ProfileImage
-
 }
 
 struct Urls: Codable {
@@ -44,4 +35,29 @@ struct Urls: Codable {
 
 struct ProfileImage: Codable {
     let small: String
+}
+
+struct Statistics: Codable {
+    let id: String
+    let slug: String
+    let downloads: Downloads
+    let views: Downloads
+    let likes: Downloads
+}
+
+struct Downloads: Codable {
+    let total: Int
+    let historical: Historical
+}
+
+struct Historical: Codable {
+    let change: Int
+    let resolution: String
+    let quantity: Int
+    let values: [Value]
+}
+
+struct Value: Codable {
+    let date: String
+    let value: Int
 }

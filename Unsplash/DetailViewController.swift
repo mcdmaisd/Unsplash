@@ -9,6 +9,7 @@ import UIKit
 
 class DetailViewController: BaseViewController {
     var data: Photo?
+    var statistics: Statistics?
     
     private let scrollView = UIScrollView()
     private let profileImage = UIImageView()
@@ -46,6 +47,7 @@ class DetailViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureNavigationBar(self)
         configureTitle()
         configurePrefix()
         configureData()
@@ -126,6 +128,8 @@ class DetailViewController: BaseViewController {
         
         configureStackView(prefixStackView)
         configureStackView(valueStackView)
+        
+        valueStackView.alignment = .trailing
     }
     
     private func configureStackView(_ stackView: UIStackView) {
@@ -163,9 +167,13 @@ class DetailViewController: BaseViewController {
     
     private func configureData() {
         guard let data = data else { return }
+        guard let statistics = statistics else { return }
+        
         let width = data.width
         let height = data.height
         let size = "\(Int(width)) x \(Int(height))"
+        let views = statistics.views.total.formatted()
+        let downloads = statistics.downloads.total.formatted()
         
         profileImage.kf.setImage(with: URL(string: data.user.profile_image.small))
         userName.text = data.user.name
@@ -173,5 +181,7 @@ class DetailViewController: BaseViewController {
         rawImage.kf.setImage(with: URL(string: data.urls.raw))
         
         valueStackView.addArrangedSubview(valueLabel(size))
+        valueStackView.addArrangedSubview(valueLabel(views))
+        valueStackView.addArrangedSubview(valueLabel(downloads))
     }
 }
