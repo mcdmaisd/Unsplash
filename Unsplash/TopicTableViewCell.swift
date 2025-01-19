@@ -20,7 +20,7 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
     }
     
     static let id = getId()
-    
+        
     override func configureHierarchy() {
         addSubView(collectionView)
         initCollectionView()
@@ -35,7 +35,7 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
     override func systemLayoutSizeFitting(_ targetSize: CGSize) -> CGSize {
         collectionView.layoutIfNeeded()
         let height = collectionView.contentSize.height
-        return CGSize(width: targetSize.width, height: height + 10)
+        return CGSize(width: targetSize.width, height: height)
     }
         
     func configureData(_ item: [Photo]) {
@@ -71,7 +71,6 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        print(#function)
         let tag = collectionView.tag
         let row = indexPath.item
         delegate?.sendData(tag, row)

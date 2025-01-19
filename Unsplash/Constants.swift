@@ -9,6 +9,7 @@ import UIKit
 
 struct Constants {
     static let colors: [UIColor] = [.black, .white, .yellow, .red, .purple, .green, .blue]
+    static let tabBarImages = ["house", "magnifyingglass"]
     static let okActionTitle = "확인"
     static let backImageName = "chevron.backward"
     static let searchBarPlaceHolder = "키워드 검색"

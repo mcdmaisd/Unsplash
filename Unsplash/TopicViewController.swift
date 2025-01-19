@@ -13,11 +13,13 @@ class TopicViewController: BaseViewController {
     private let topicLabel = UILabel()
     private let tableView = UITableView()
     private var sectionTitles: [(String, String)] = []
-    
     private var topics: [[Photo]] = [[], [], []]
+    private var lastRefreshTime: Date?
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        initTableView()
+        configureRefreshControl()
         pickRandomTopics()
         requestTopics()
     }
@@ -67,7 +69,31 @@ class TopicViewController: BaseViewController {
         }
         
         group.notify(queue: .main) {
-            self.initTableView()
+            self.tableView.reloadData()
+        }
+    }
+    
+    private func configureRefreshControl() {
+        tableView.refreshControl = UIRefreshControl()
+        tableView.refreshControl?.attributedTitle = NSAttributedString(string: "Pull To Refresh")
+        tableView.refreshControl?.addTarget(self, action: #selector(whenTableViewPullDown), for: .valueChanged)
+    }
+    
+    @objc
+    private func whenTableViewPullDown() {
+        if lastRefreshTime == nil {
+            lastRefreshTime = Date()
+        } else if Int(Date().timeIntervalSince(lastRefreshTime ?? Date())) < 60 {
+            self.tableView.refreshControl?.endRefreshing()
+            return
+        }
+        
+        lastRefreshTime = Date()
+        pickRandomTopics()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.requestTopics()
+            self.tableView.refreshControl?.endRefreshing()
         }
     }
 }
@@ -102,6 +128,14 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        if let header = view as? UITableViewHeaderFooterView {
+            header.textLabel?.textColor = .black
+            header.textLabel?.font = .boldSystemFont(ofSize: 20)
+            header.textLabel?.sizeToFit()
+        }
     }
 }
 

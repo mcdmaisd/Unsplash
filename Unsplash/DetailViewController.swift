@@ -55,6 +55,7 @@ class DetailViewController: BaseViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        profileImage.layoutIfNeeded()
         profileImage.layer.cornerRadius = profileImage.frame.size.width / 2
         profileImage.clipsToBounds = true
     }
