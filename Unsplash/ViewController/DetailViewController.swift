@@ -169,7 +169,7 @@ class DetailViewController: BaseViewController {
         }
         
         chart.snp.makeConstraints { make in
-            make.top.equalTo(prefixStackView.snp.bottom).offset(10)
+            make.centerY.equalTo(segmentControl)
             make.leading.equalTo(info)
         }
     }
@@ -191,35 +191,31 @@ class DetailViewController: BaseViewController {
         let tag = sender.selectedSegmentIndex
         let views = data.views.historical.values.map { $0.value }
         let downloads = data.downloads.historical.values.map { $0.value }
-        
+                
         switch tag {
         case 0:
-            setLineData(lineChartView: chartView, lineChartDataEntries: entryData(values: views), Constants.chartTitles[tag])
+            setLineData(chartView, entryData(values: views), Constants.chartTitles[tag])
         case 1:
-            setLineData(lineChartView: chartView, lineChartDataEntries: entryData(values: downloads), Constants.chartTitles[tag])
+            setLineData(chartView, entryData(values: downloads), Constants.chartTitles[tag])
         default:
             break
         }
     }
     
     private func configureChart() {
-        guard let data = statistics else { return }
-        let days = data.views.historical.values.map { $0.date }
-
         chartView.noDataText = Constants.noData
         chartView.noDataFont = .systemFont(ofSize: 20)
         chartView.noDataTextColor = .lightGray
-        chartView.backgroundColor = .white
         chartView.xAxis.labelPosition = .bottom
-        chartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: days)
-        chartView.xAxis.setLabelCount(2, force: true)
+        chartView.backgroundColor = .white
     }
     
-    func setLineData(lineChartView: LineChartView, lineChartDataEntries: [ChartDataEntry], _ text: String) {
+    func setLineData(_ lineChartView: LineChartView, _ lineChartDataEntries: [ChartDataEntry], _ text: String) {
         let lineChartdataSet = LineChartDataSet(entries: lineChartDataEntries, label: text)
         lineChartdataSet.drawValuesEnabled = false
         lineChartdataSet.drawCirclesEnabled = false
         lineChartdataSet.colors = [.systemPink]
+        
         let lineChartData = LineChartData(dataSet: lineChartdataSet)
         lineChartView.data = lineChartData
     }
