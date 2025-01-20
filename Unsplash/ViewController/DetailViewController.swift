@@ -146,7 +146,9 @@ class DetailViewController: BaseViewController {
         
         valueStackView.alignment = .trailing
     }
-    
+}
+
+extension DetailViewController {
     private func configureStackView(_ stackView: UIStackView) {
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
@@ -185,52 +187,6 @@ class DetailViewController: BaseViewController {
         segmentControl.addTarget(self, action: #selector(segmentControlTapped), for: .valueChanged)
     }
     
-    @objc
-    private func segmentControlTapped(_ sender: UISegmentedControl) {
-        guard let data = statistics else { return }
-        let tag = sender.selectedSegmentIndex
-        let views = data.views.historical.values.map { $0.value }
-        let downloads = data.downloads.historical.values.map { $0.value }
-                
-        switch tag {
-        case 0:
-            setLineData(chartView, entryData(values: views), Constants.chartTitles[tag])
-        case 1:
-            setLineData(chartView, entryData(values: downloads), Constants.chartTitles[tag])
-        default:
-            break
-        }
-    }
-    
-    private func configureChart() {
-        chartView.noDataText = Constants.noData
-        chartView.noDataFont = .systemFont(ofSize: 20)
-        chartView.noDataTextColor = .lightGray
-        chartView.xAxis.labelPosition = .bottom
-        chartView.backgroundColor = .white
-    }
-    
-    func setLineData(_ lineChartView: LineChartView, _ lineChartDataEntries: [ChartDataEntry], _ text: String) {
-        let lineChartdataSet = LineChartDataSet(entries: lineChartDataEntries, label: text)
-        lineChartdataSet.drawValuesEnabled = false
-        lineChartdataSet.drawCirclesEnabled = false
-        lineChartdataSet.colors = [.systemPink]
-        
-        let lineChartData = LineChartData(dataSet: lineChartdataSet)
-        lineChartView.data = lineChartData
-    }
-
-    func entryData(values: [Double]) -> [ChartDataEntry] {
-        var lineDataEntries: [ChartDataEntry] = []
-        
-        for i in 0 ..< values.count {
-            let lineDataEntry = ChartDataEntry(x: Double(i), y: values[i])
-            lineDataEntries.append(lineDataEntry)
-        }
-        
-        return lineDataEntries
-    }
-    
     private func configureData() {
         guard let data = data else { return }
         guard let statistics = statistics else { return }
@@ -249,5 +205,48 @@ class DetailViewController: BaseViewController {
         valueStackView.addArrangedSubview(valueLabel(size))
         valueStackView.addArrangedSubview(valueLabel(views))
         valueStackView.addArrangedSubview(valueLabel(downloads))
+    }
+    
+    @objc
+    private func segmentControlTapped(_ sender: UISegmentedControl) {
+        guard let data = statistics else { return }
+        
+        let tag = sender.selectedSegmentIndex
+        let views = data.views.historical.values.map { $0.value }
+        let downloads = data.downloads.historical.values.map { $0.value }
+        let category = [views, downloads]
+        
+        setLineData(chartView, entryData(values: category[tag]), Constants.chartTitles[tag])
+    }
+}
+
+extension DetailViewController {
+    private func configureChart() {
+        chartView.noDataText = Constants.noData
+        chartView.noDataFont = .systemFont(ofSize: 20)
+        chartView.noDataTextColor = .lightGray
+        chartView.xAxis.labelPosition = .bottom
+        chartView.backgroundColor = .white
+    }
+    
+    private func setLineData(_ lineChartView: LineChartView, _ lineChartDataEntries: [ChartDataEntry], _ text: String) {
+        let lineChartdataSet = LineChartDataSet(entries: lineChartDataEntries, label: text)
+        lineChartdataSet.drawValuesEnabled = false
+        lineChartdataSet.drawCirclesEnabled = false
+        lineChartdataSet.colors = [.systemPink]
+        
+        let lineChartData = LineChartData(dataSet: lineChartdataSet)
+        lineChartView.data = lineChartData
+    }
+    
+    private func entryData(values: [Double]) -> [ChartDataEntry] {
+        var lineDataEntries: [ChartDataEntry] = []
+        
+        for i in 0 ..< values.count {
+            let lineDataEntry = ChartDataEntry(x: Double(i), y: values[i])
+            lineDataEntries.append(lineDataEntry)
+        }
+        
+        return lineDataEntries
     }
 }

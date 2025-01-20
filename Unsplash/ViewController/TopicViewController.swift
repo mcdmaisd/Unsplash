@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TopicViewController: BaseViewController, sendData {
+class TopicViewController: BaseViewController {
 
     private let group = DispatchGroup()
     private let topicLabel = UILabel()
@@ -24,6 +24,11 @@ class TopicViewController: BaseViewController, sendData {
         configureRefreshControl()
         pickRandomTopics()
         requestTopics()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isTouched = false
     }
     
     override func configureHierarchy() {
@@ -47,97 +52,16 @@ class TopicViewController: BaseViewController, sendData {
         topicLabel.font = .boldSystemFont(ofSize: 30)
         topicLabel.sizeToFit()
     }
-    
-    private func pickRandomTopics() {
-        let randomTopics = Array(Constants.topicDictionary).shuffled().prefix(3)
-        sectionTitles = Array(randomTopics)
-    }
+}
 
+extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
     private func initTableView() {
         tableView.separatorStyle = .none
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(TopicTableViewCell.self, forCellReuseIdentifier: TopicTableViewCell.id)
     }
-    
-    private func requestTopics() {
-        for (i, title) in sectionTitles.enumerated() {
-            let url = UrlComponent.shared.topic(title.0)
-            group.enter()
-            NetworkManager.shared.requestAPI(url) { (data: [Photo]) in
-                self.topics[i] = data
-                self.group.leave()
-            }
-        }
-        // for loop 와 requesAPI는 다르게 동작한다(main.sync, global.async 차이)
-        group.notify(queue: .main) {
-            self.tableView.reloadData()
-        }
-    }
-    
-    private func getTimeInterval() -> Int {
-        return Int(Date().timeIntervalSince(lastRefreshTime ?? Date()))
-    }
-    
-    private func configureRefreshControl() {
-        tableView.refreshControl = UIRefreshControl()
-        tableView.refreshControl?.addTarget(self, action: #selector(whenTableViewPullDown), for: .valueChanged)
-    }
-        
-    @objc
-    private func whenTableViewPullDown() {
-        let isMinuteAfter = getTimeInterval() >= Constants.minute
-        let message = isMinuteAfter 
-            ? Constants.pleaseWait
-            : "\(Constants.minute - getTimeInterval())\(Constants.lessThenMinuteSuffix)"
-        
-        if lastRefreshTime == nil {
-            lastRefreshTime = Date()
-            tableView.refreshControl?.attributedTitle = NSAttributedString(string: Constants.pleaseWait)
-        } else if getTimeInterval() < Constants.minute {
-            tableView.refreshControl?.attributedTitle = NSAttributedString(string: message)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.tableView.refreshControl?.endRefreshing()
-            }
-            
-            return
-        } else {
-            tableView.refreshControl?.attributedTitle = NSAttributedString(string: message)
-        }
-        
-        lastRefreshTime = Date()
-        pickRandomTopics()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.requestTopics()
-            self.tableView.refreshControl?.endRefreshing()
-        }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        isTouched = false
-    }
-    
-    func sendData(_ tag: Int, _ row: Int) {
-        if isTouched { return }
-        isTouched.toggle()
-        let item = topics[tag][row]
-        let id = item.id
-        let vc = DetailViewController()
-        let url = UrlComponent.shared.statistics(id)
-        
-        vc.data = item
-        
-        NetworkManager.shared.requestAPI(url) { data in
-            vc.statistics = data
-            self.navigationController?.pushViewController(vc, animated: true)
-        }
-    }
-}
 
-extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         1
     }
@@ -178,6 +102,88 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
             header.textLabel?.textColor = .black
             header.textLabel?.font = .boldSystemFont(ofSize: 20)
             header.textLabel?.sizeToFit()
+        }
+    }
+}
+
+extension TopicViewController {
+    private func getTimeInterval() -> Int {
+        return Int(Date().timeIntervalSince(lastRefreshTime ?? Date()))
+    }
+    
+    private func configureRefreshControl() {
+        tableView.refreshControl = UIRefreshControl()
+        tableView.refreshControl?.addTarget(self, action: #selector(whenTableViewPullDown), for: .valueChanged)
+    }
+        
+    @objc
+    private func whenTableViewPullDown() {
+        let isMinuteAfter = getTimeInterval() >= Constants.minute
+        let message = isMinuteAfter
+            ? Constants.pleaseWait
+            : "\(Constants.minute - getTimeInterval())\(Constants.lessThenMinuteSuffix)"
+        
+        if lastRefreshTime == nil {
+            lastRefreshTime = Date()
+            tableView.refreshControl?.attributedTitle = NSAttributedString(string: Constants.pleaseWait)
+        } else if getTimeInterval() < Constants.minute {
+            tableView.refreshControl?.attributedTitle = NSAttributedString(string: message)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.tableView.refreshControl?.endRefreshing()
+            }
+            
+            return
+        } else {
+            tableView.refreshControl?.attributedTitle = NSAttributedString(string: message)
+        }
+        
+        lastRefreshTime = Date()
+        pickRandomTopics()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.requestTopics()
+            self.tableView.refreshControl?.endRefreshing()
+        }
+    }
+}
+
+extension TopicViewController {
+    private func pickRandomTopics() {
+        let randomTopics = Array(Constants.topicDictionary).shuffled().prefix(3)
+        sectionTitles = Array(randomTopics)
+    }
+
+    private func requestTopics() {
+        for (i, title) in sectionTitles.enumerated() {
+            let url = UrlComponent.shared.topic(title.0)
+            group.enter()
+            NetworkManager.shared.requestAPI(url) { (data: [Photo]) in
+                self.topics[i] = data
+                self.group.leave()
+            }
+        }
+        // for loop 와 requesAPI는 다르게 동작한다(main.sync, global.async 차이)
+        group.notify(queue: .main) {
+            self.tableView.reloadData()
+        }
+    }
+}
+
+extension TopicViewController: sendData {
+    func sendData(_ tag: Int, _ row: Int) {
+        if isTouched { return }
+        isTouched.toggle()
+        let item = topics[tag][row]
+        let id = item.id
+        let vc = DetailViewController()
+        let url = UrlComponent.shared.statistics(id)
+        
+        vc.data = item
+        
+        NetworkManager.shared.requestAPI(url) { data in
+            vc.statistics = data
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

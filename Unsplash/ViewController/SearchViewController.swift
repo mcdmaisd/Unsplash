@@ -98,74 +98,23 @@ class SearchViewController: BaseViewController {
         statusLabel.font = .boldSystemFont(ofSize: 20)
         statusLabel.sizeToFit()
     }
-    
-    private func configureOrderButton() {
-        orderButton.addTarget(self, action: #selector(orderButtonTapped), for: .touchUpInside)
-    }
-    
-    private func configureColorSwitch() {
-        for (i, color) in Constants.colors.enumerated() {
-            let button = CustomSwitch(color: color, tag: i)
-            button.addTarget(self, action: #selector(switchTapped), for: .touchUpInside)
-            colorButtons.append(button)
+}
+
+extension SearchViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let text = searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        if text.isEmpty {
+            keyword = text
+            searchBar.text = text
+            searchResult.removeAll()
+            presentAlert(message: Constants.emptyKeyword)
+            return
         }
         
-        colorButtons.forEach { colorSwitchStackView.addArrangedSubview($0) }
-    }
-    
-    @objc
-    private func switchTapped(_ sender: UISwitch) {
-        if keyword.isEmpty { return }
-        
-        for button in colorButtons {
-            if button.tag == sender.tag {
-                button.isOn = sender.isOn
-            } else {
-                button.isOn = false
-            }
-        }
-        
-        requestSearch()
-    }
-    
-    @objc
-    private func orderButtonTapped(_ sender: UIButton) {
-        if keyword.isEmpty { return }
-        sender.isSelected.toggle()
-        requestSearch()
-    }
-    
-    private func requestSearch() {
-        guard let searchbar = navigationItem.searchController?.searchBar else { return }
-        navigationItem.searchController?.searchBar.text = keyword
         page = UrlConstants.page
-        searchBarSearchButtonClicked(searchbar)
-    }
-    
-    private func initNavigationBar() {
-        let searchController = UISearchController(searchResultsController: nil)
-        searchController.automaticallyShowsCancelButton = true
-        searchController.hidesNavigationBarDuringPresentation = false
-        searchController.searchBar.placeholder = Constants.searchBarPlaceHolder
-        searchController.searchBar.delegate = self
-        
-        navigationItem.searchController = searchController
-        navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.title = Constants.title
-    }
-    
-    private func initCollectionView() {
-        collectionView.keyboardDismissMode = .onDrag
-        collectionView.isHidden = true
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.prefetchDataSource = self
-        collectionView.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: SearchCollectionViewCell.id)
-    }
-    
-    private func toggleUI() {
-        collectionView.isHidden = searchResult.isEmpty
-        statusLabel.isHidden = !searchResult.isEmpty
+        keyword = text
+        searchImage()
     }
     
     private func makeUrl() -> String {
@@ -194,25 +143,16 @@ class SearchViewController: BaseViewController {
     }
 }
 
-extension SearchViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let text = searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        
-        if text.isEmpty {
-            keyword = text
-            searchBar.text = text
-            searchResult.removeAll()
-            presentAlert(message: Constants.emptyKeyword)
-            return
-        }
-        
-        page = UrlConstants.page
-        keyword = text
-        searchImage()
-    }
-}
-
 extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    private func initCollectionView() {
+        collectionView.keyboardDismissMode = .onDrag
+        collectionView.isHidden = true
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.prefetchDataSource = self
+        collectionView.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: SearchCollectionViewCell.id)
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         searchResult.count
     }
@@ -261,3 +201,66 @@ extension SearchViewController: UICollectionViewDataSourcePrefetching {
     }
 }
 
+extension SearchViewController {
+    private func initNavigationBar() {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.automaticallyShowsCancelButton = true
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.placeholder = Constants.searchBarPlaceHolder
+        searchController.searchBar.delegate = self
+        
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        navigationItem.title = Constants.title
+    }
+    
+    private func toggleUI() {
+        collectionView.isHidden = searchResult.isEmpty
+        statusLabel.isHidden = !searchResult.isEmpty
+    }
+}
+
+extension SearchViewController {
+    private func configureOrderButton() {
+        orderButton.addTarget(self, action: #selector(orderButtonTapped), for: .touchUpInside)
+    }
+    
+    private func configureColorSwitch() {
+        for (i, color) in Constants.colors.enumerated() {
+            let button = CustomSwitch(color: color, tag: i)
+            button.addTarget(self, action: #selector(switchTapped), for: .touchUpInside)
+            colorButtons.append(button)
+        }
+        
+        colorButtons.forEach { colorSwitchStackView.addArrangedSubview($0) }
+    }
+    
+    @objc
+    private func switchTapped(_ sender: UISwitch) {
+        if keyword.isEmpty { return }
+        
+        for button in colorButtons {
+            if button.tag == sender.tag {
+                button.isOn = sender.isOn
+            } else {
+                button.isOn = false
+            }
+        }
+        
+        requestSearch()
+    }
+    
+    @objc
+    private func orderButtonTapped(_ sender: UIButton) {
+        if keyword.isEmpty { return }
+        sender.isSelected.toggle()
+        requestSearch()
+    }
+    
+    private func requestSearch() {
+        guard let searchbar = navigationItem.searchController?.searchBar else { return }
+        navigationItem.searchController?.searchBar.text = keyword
+        page = UrlConstants.page
+        searchBarSearchButtonClicked(searchbar)
+    }
+}

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollectionViewDataSource {
+class TopicTableViewCell: BaseTableViewCell {
     
     weak var delegate: sendData?
     
@@ -21,7 +21,7 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
     }
     
     static let id = getId()
-        
+    
     override func configureHierarchy() {
         addSubView(collectionView)
         initCollectionView()
@@ -29,36 +29,20 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
     
     override func configureLayout() {
         collectionView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(10)
+            make.edges.equalToSuperview()
         }
     }
-    
-    override func systemLayoutSizeFitting(_ targetSize: CGSize) -> CGSize {
-        collectionView.layoutIfNeeded()
-        let height = collectionView.contentSize.height
-        return CGSize(width: targetSize.width, height: height)
-    }
-        
-    func configureData(_ item: [Photo]) {
-        result = item
-    }
-    
-    private func initCollectionView() {
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: SearchCollectionViewCell.id)
-    }
-    
+}
+
+extension TopicTableViewCell: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         result.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let row = indexPath.row
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCollectionViewCell.id, for: indexPath) as! SearchCollectionViewCell
-                
         let item = result[row]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCollectionViewCell.id, for: indexPath) as! SearchCollectionViewCell
         
         cell.configureData(item)
         
@@ -78,8 +62,15 @@ class TopicTableViewCell: BaseTableViewCell, UICollectionViewDelegate, UICollect
     }
 }
 
-extension TopicTableViewCell: UICollectionViewDataSourcePrefetching {
-    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-        
+extension TopicTableViewCell {
+    func configureData(_ item: [Photo]) {
+        result = item
+    }
+    
+    private func initCollectionView() {
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: SearchCollectionViewCell.id)
     }
 }
