@@ -6,18 +6,22 @@
 //
 
 import UIKit
+import DGCharts
 
 class DetailViewController: BaseViewController {
+    
     var data: Photo?
     var statistics: Statistics?
+    
+    private var prefixStackView = UIStackView()
+    private var valueStackView = UIStackView()
+    private var chartView = LineChartView()
     
     private let scrollView = UIScrollView()
     private let profileImage = UIImageView()
     private let userName = UILabel()
     private let uploadDate = UILabel()
     private let rawImage = UIImageView()
-    private var prefixStackView = UIStackView()
-    private var valueStackView = UIStackView()
     private let segmentControl = UISegmentedControl(items: Constants.segmentTitles)
     
     private let titleLabel = { (_ text: String) in
@@ -51,6 +55,9 @@ class DetailViewController: BaseViewController {
         configureTitle()
         configurePrefix()
         configureData()
+        configureSegmentControl()
+        configureChart()
+        segmentControlTapped(segmentControl)
     }
     
     override func viewDidLayoutSubviews() {
@@ -69,6 +76,7 @@ class DetailViewController: BaseViewController {
         scrollView.addSubview(prefixStackView)
         scrollView.addSubview(valueStackView)
         scrollView.addSubview(segmentControl)
+        scrollView.addSubview(chartView)
     }
     
     override func configureLayout() {
@@ -113,7 +121,13 @@ class DetailViewController: BaseViewController {
         segmentControl.snp.makeConstraints { make in
             make.top.equalTo(prefixStackView.snp.bottom).offset(10)
             make.leading.equalTo(prefixStackView)
-            make.bottom.equalToSuperview().offset(-10)
+        }
+        
+        chartView.snp.makeConstraints { make in
+            make.top.equalTo(segmentControl.snp.bottom).offset(5)
+            make.trailing.leading.equalTo(view.safeAreaLayoutGuide).inset(10)
+            make.height.equalTo(200)
+            make.bottom.equalToSuperview().offset(-5)
         }
     }
     
@@ -140,8 +154,8 @@ class DetailViewController: BaseViewController {
     }
     
     private func configureTitle() {
-        let info = titleLabel("정보")
-        let chart = titleLabel("차트")
+        let info = titleLabel(Constants.info)
+        let chart = titleLabel(Constants.chart)
         
         info.sizeToFit()
         chart.sizeToFit()
@@ -164,6 +178,61 @@ class DetailViewController: BaseViewController {
         for title in Constants.prefixTitles {
             prefixStackView.addArrangedSubview(prefixLabel(title))
         }
+    }
+    
+    private func configureSegmentControl() {
+        segmentControl.selectedSegmentIndex = 0
+        segmentControl.addTarget(self, action: #selector(segmentControlTapped), for: .valueChanged)
+    }
+    
+    @objc
+    private func segmentControlTapped(_ sender: UISegmentedControl) {
+        guard let data = statistics else { return }
+        let tag = sender.selectedSegmentIndex
+        let views = data.views.historical.values.map { $0.value }
+        let downloads = data.downloads.historical.values.map { $0.value }
+        
+        switch tag {
+        case 0:
+            setLineData(lineChartView: chartView, lineChartDataEntries: entryData(values: views), Constants.chartTitles[tag])
+        case 1:
+            setLineData(lineChartView: chartView, lineChartDataEntries: entryData(values: downloads), Constants.chartTitles[tag])
+        default:
+            break
+        }
+    }
+    
+    private func configureChart() {
+        guard let data = statistics else { return }
+        let days = data.views.historical.values.map { $0.date }
+
+        chartView.noDataText = Constants.noData
+        chartView.noDataFont = .systemFont(ofSize: 20)
+        chartView.noDataTextColor = .lightGray
+        chartView.backgroundColor = .white
+        chartView.xAxis.labelPosition = .bottom
+        chartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: days)
+        chartView.xAxis.setLabelCount(2, force: true)
+    }
+    
+    func setLineData(lineChartView: LineChartView, lineChartDataEntries: [ChartDataEntry], _ text: String) {
+        let lineChartdataSet = LineChartDataSet(entries: lineChartDataEntries, label: text)
+        lineChartdataSet.drawValuesEnabled = false
+        lineChartdataSet.drawCirclesEnabled = false
+        lineChartdataSet.colors = [.systemPink]
+        let lineChartData = LineChartData(dataSet: lineChartdataSet)
+        lineChartView.data = lineChartData
+    }
+
+    func entryData(values: [Double]) -> [ChartDataEntry] {
+        var lineDataEntries: [ChartDataEntry] = []
+        
+        for i in 0 ..< values.count {
+            let lineDataEntry = ChartDataEntry(x: Double(i), y: values[i])
+            lineDataEntries.append(lineDataEntry)
+        }
+        
+        return lineDataEntries
     }
     
     private func configureData() {

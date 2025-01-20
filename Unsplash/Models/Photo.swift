@@ -59,5 +59,5 @@ struct Historical: Codable {
 
 struct Value: Codable {
     let date: String
-    let value: Int
+    let value: Double
 }

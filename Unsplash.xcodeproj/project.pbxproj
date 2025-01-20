@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F464A212D3DC0AA00FBB62D /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 4F464A202D3DC0AA00FBB62D /* DGCharts */; };
 		4FE53F9A2D3BB03300A778FA /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 4FE53F992D3BB03300A778FA /* .gitignore */; };
 		4FE53F9F2D3BB8B000A778FA /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4FE53F9E2D3BB8B000A778FA /* Alamofire */; };
 		4FE53FA22D3BB8BA00A778FA /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4FE53FA12D3BB8BA00A778FA /* SnapKit */; };
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F464A212D3DC0AA00FBB62D /* DGCharts in Frameworks */,
 				4FE53FA52D3BB8C500A778FA /* Kingfisher in Frameworks */,
 				4FE53F9F2D3BB8B000A778FA /* Alamofire in Frameworks */,
 				4FE53FA22D3BB8BA00A778FA /* SnapKit in Frameworks */,
@@ -93,6 +95,7 @@
 				4FE53F9E2D3BB8B000A778FA /* Alamofire */,
 				4FE53FA12D3BB8BA00A778FA /* SnapKit */,
 				4FE53FA42D3BB8C500A778FA /* Kingfisher */,
+				4F464A202D3DC0AA00FBB62D /* DGCharts */,
 			);
 			productName = Unsplash;
 			productReference = 4FE53F4C2D3AA0D900A778FA /* Unsplash.app */;
@@ -126,6 +129,7 @@
 				4FE53F9D2D3BB8B000A778FA /* XCRemoteSwiftPackageReference "Alamofire" */,
 				4FE53FA02D3BB8BA00A778FA /* XCRemoteSwiftPackageReference "SnapKit" */,
 				4FE53FA32D3BB8C500A778FA /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				4F464A1F2D3DC0AA00FBB62D /* XCRemoteSwiftPackageReference "Charts" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4FE53F4D2D3AA0D900A778FA /* Products */;
@@ -366,6 +370,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4F464A1F2D3DC0AA00FBB62D /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ChartsOrg/Charts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
 		4FE53F9D2D3BB8B000A778FA /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
@@ -393,6 +405,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4F464A202D3DC0AA00FBB62D /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4F464A1F2D3DC0AA00FBB62D /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = DGCharts;
+		};
 		4FE53F9E2D3BB8B000A778FA /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4FE53F9D2D3BB8B000A778FA /* XCRemoteSwiftPackageReference "Alamofire" */;
