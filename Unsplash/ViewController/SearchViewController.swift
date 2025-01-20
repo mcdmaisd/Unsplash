@@ -14,6 +14,7 @@ class SearchViewController: BaseViewController {
     private let colorSwitchStackView = UIStackView()
     private let statusLabel = UILabel()
     
+    private var isTouched = false
     private var total = 0
     private var keyword = "" {
         willSet {
@@ -41,6 +42,11 @@ class SearchViewController: BaseViewController {
         configureColorSwitch()
         initCollectionView()
         toggleUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isTouched = false
     }
     
     override func configureHierarchy() {
@@ -221,6 +227,8 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if isTouched { return }
+        isTouched.toggle()
         collectionView.deselectItem(at: indexPath, animated: true)
         let row = indexPath.row
         let id = searchResult[row].id

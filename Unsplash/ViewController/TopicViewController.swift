@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TopicViewController: BaseViewController {
+class TopicViewController: BaseViewController, sendData {
 
     private let group = DispatchGroup()
     private let topicLabel = UILabel()
@@ -16,7 +16,8 @@ class TopicViewController: BaseViewController {
     private var sectionTitles: [(String, String)] = []
     private var topics: [[Photo]] = [[], [], []]
     private var lastRefreshTime: Date?
-        
+    private var isTouched = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         initTableView()
@@ -68,7 +69,7 @@ class TopicViewController: BaseViewController {
                 self.group.leave()
             }
         }
-        
+        // for loop 와 requesAPI는 다르게 동작한다(main.sync, global.async 차이)
         group.notify(queue: .main) {
             self.tableView.reloadData()
         }
@@ -113,6 +114,27 @@ class TopicViewController: BaseViewController {
             self.tableView.refreshControl?.endRefreshing()
         }
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isTouched = false
+    }
+    
+    func sendData(_ tag: Int, _ row: Int) {
+        if isTouched { return }
+        isTouched.toggle()
+        let item = topics[tag][row]
+        let id = item.id
+        let vc = DetailViewController()
+        let url = UrlComponent.shared.statistics(id)
+        
+        vc.data = item
+        
+        NetworkManager.shared.requestAPI(url) { data in
+            vc.statistics = data
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }
 
 extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
@@ -152,22 +174,6 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
             header.textLabel?.textColor = .black
             header.textLabel?.font = .boldSystemFont(ofSize: 20)
             header.textLabel?.sizeToFit()
-        }
-    }
-}
-
-extension TopicViewController: sendData {
-    func sendData(_ tag: Int, _ row: Int) {
-        let item = topics[tag][row]
-        let id = item.id
-        let vc = DetailViewController()
-        let url = UrlComponent.shared.statistics(id)
-        
-        vc.data = item
-        
-        NetworkManager.shared.requestAPI(url) { data in
-            vc.statistics = data
-            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

@@ -38,6 +38,7 @@ class SearchCollectionViewCell: BaseCollectionViewCell {
     
     override func configureView() {
         thumbnail.contentMode = .scaleToFill
+        contentView.isExclusiveTouch = true
         
         outlineView.backgroundColor = .gray
         outlineView.layer.cornerRadius = 15

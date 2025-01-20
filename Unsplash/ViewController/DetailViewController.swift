@@ -126,7 +126,7 @@ class DetailViewController: BaseViewController {
         chartView.snp.makeConstraints { make in
             make.top.equalTo(segmentControl.snp.bottom).offset(5)
             make.trailing.leading.equalTo(view.safeAreaLayoutGuide).inset(10)
-            make.height.equalTo(200)
+            make.height.equalTo(200)// 높이 명시 안하면 화면 표시 안됨
             make.bottom.equalToSuperview().offset(-5)
         }
     }
