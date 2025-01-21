@@ -43,5 +43,4 @@ extension UIViewController {
         backBarButtonItem.image = image
         vc.navigationItem.leftBarButtonItem = backBarButtonItem
     }
-    
 }

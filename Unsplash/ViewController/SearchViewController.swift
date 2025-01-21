@@ -135,9 +135,11 @@ extension SearchViewController: UISearchBarDelegate {
             } else {
                 searchResult.append(contentsOf: data.results)
             }
+            
             if searchResult.isEmpty {
                 statusLabel.text = Constants.emptySearchResult
             }
+            
             toggleUI()
         }
     }
@@ -168,12 +170,13 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if isTouched { return }
+        
         isTouched.toggle()
+        
         collectionView.deselectItem(at: indexPath, animated: true)
         let row = indexPath.row
         let id = searchResult[row].id
         let vc = DetailViewController()
-        
         let url = UrlComponent.shared.statistics(id)
         
         vc.data = searchResult[row]

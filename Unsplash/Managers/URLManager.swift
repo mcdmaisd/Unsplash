@@ -25,12 +25,10 @@ class UrlComponent {
     private let searchPath = "/search"
     private let statisticsPath = "/statistics"
     private let keywordQuery = "query"
-    private let idQuery = "client_id"
     private let pageQuery = "page"
     private let perPageQuery = "per_page"
     private let orderQuery = "order_by"
     private let colorQuery = "color"
-    private lazy var client = URLQueryItem(name: idQuery, value: Unsplash.id)
 
     private init() { }
     
@@ -46,7 +44,7 @@ class UrlComponent {
         components.path = topicPath + "/" + id + photoPath
 
         let page = URLQueryItem(name: pageQuery, value: String(UrlConstants.page))
-        components.queryItems = [page, client]
+        components.queryItems = [page]
         
         return components.url?.absoluteString ?? Constants.emptyUrl
     }
@@ -61,7 +59,7 @@ class UrlComponent {
         let order = URLQueryItem(name: orderQuery, value: order)
         let colorItem = URLQueryItem(name: colorQuery, value: color)
         
-        var queryList: [URLQueryItem] = [keyword, page, perPage, order, client]
+        var queryList: [URLQueryItem] = [keyword, page, perPage, order]
         
         if !color.isEmpty {
             queryList.append(colorItem)
@@ -75,7 +73,6 @@ class UrlComponent {
     func statistics(_ id: String) -> String {
         var components = configureBaseComponents()
         components.path = photoPath + "/" + id + statisticsPath
-        components.queryItems = [client]
         
         return components.url?.absoluteString ?? Constants.emptyUrl
     }

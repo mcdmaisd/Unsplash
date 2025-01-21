@@ -13,8 +13,12 @@ class NetworkManager {
     
     private init() { }
     
+    let header: HTTPHeaders = [
+        "Authorization": "Client-ID \(Unsplash.id)"
+    ]
+    
     func requestAPI<T: Codable>(_ url: String, _ completionHandler: @escaping (T) -> Void) {
-        AF.request(url, method: .get)
+        AF.request(url, method: .get, headers: header)
             .responseDecodable(of: T.self) { response in
                 switch response.result {
                 case .success(let value):
