@@ -12,10 +12,10 @@ extension String {
         let isoformatter = ISO8601DateFormatter()
         isoformatter.formatOptions = [.withInternetDateTime]
         
-        guard let date = isoformatter.date(from: self) else { return "Fail"}
+        guard let date = isoformatter.date(from: self) else { return Constants.failure}
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy년 MM월 dd일 '게시됨'"
+        formatter.locale = Locale(identifier: Constants.locale)
+        formatter.dateFormat = Constants.dateStringFormat
         
         return formatter.string(from: date)
     }

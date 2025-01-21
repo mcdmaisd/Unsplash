@@ -27,6 +27,9 @@ struct Constants {
     static let pleaseWait = "잠시만 기다려주세요"
     static let lessThenMinuteSuffix = "초 후에 새로고침 가능"
     static let topicTitle = "OUR TOPIC"
+    static let dateStringFormat = "yyyy년 MM월 dd일 '게시됨'"
+    static let locale = "ko_KR"
+    static let failure = "Fail"
     static let minute = 60
     static let topicDictionary: [String: String] = [
         "architecture-interior": "건축 및 인테리어",

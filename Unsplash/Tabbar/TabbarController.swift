@@ -18,7 +18,6 @@ class TabbarController: UITabBarController {
         }
 
         viewControllers = tabs.map { UINavigationController(rootViewController: $0) }
-        modalPresentationStyle = .fullScreen
         tabBar.backgroundColor = .lightGray
         tabBar.tintColor = .black
     }
