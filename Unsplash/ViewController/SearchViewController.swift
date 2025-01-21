@@ -22,7 +22,7 @@ class SearchViewController: BaseViewController {
             colorSwitchStackView.isHidden = newValue.isEmpty
         }
     }
-    private var page = UrlConstants.page
+    private var page = APIConstants.startPage
     private var colorButtons: [UISwitch] = []
     private var searchResult: [Photo] = [] {
         didSet {
@@ -112,24 +112,24 @@ extension SearchViewController: UISearchBarDelegate {
             return
         }
         
-        page = UrlConstants.page
+        page = APIConstants.startPage
         keyword = text
         searchImage()
     }
     
-    private func makeUrl() -> String {
-        let filter = orderButton.isSelected ? UrlConstants.orderByLatest : UrlConstants.orderByRelevant
+    private func makeRequest() -> APIRouter {
+        let filter = orderButton.isSelected ? APIConstants.byLatest : APIConstants.byRelevant
         let isOnSwitch = colorButtons.filter({ $0.isOn })
-        let color = isOnSwitch.isEmpty ? "" : UrlConstants.colorKeys[isOnSwitch.first?.tag ?? -1]
-        let url = UrlComponent.shared.search(keyword, filter, color, page)
+        let color = isOnSwitch.isEmpty ? "" : APIConstants.colorKeys[isOnSwitch.first?.tag ?? -1]
+        let request = APIRouter.search(query: keyword, order: filter, color: color, page: page)
         
-        return url
+        return request
     }
     
     private func searchImage() {
-        let url = makeUrl()
+        let request = makeRequest()
         
-        NetworkManager.shared.requestAPI(url) { [self] (data: Search) in
+        APIManager.shared.requestAPI(request) { [self] (data: Search) in
             if page == 1 {
                 searchResult = data.results
             } else {
@@ -177,11 +177,11 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         let row = indexPath.row
         let id = searchResult[row].id
         let vc = DetailViewController()
-        let url = UrlComponent.shared.statistics(id)
+        let request = APIRouter.statistics(id: id)
         
         vc.data = searchResult[row]
 
-        NetworkManager.shared.requestAPI(url) { data in
+        APIManager.shared.requestAPI(request) { data in
             vc.statistics = data
             self.navigationController?.pushViewController(vc, animated: true)
         }
@@ -195,8 +195,8 @@ extension SearchViewController: UICollectionViewDataSourcePrefetching {
         for indexPath in indexPaths {
             if indexPath.row > searchResult.count / 2 {
                 page += 1
-                let url = makeUrl()
-                NetworkManager.shared.requestAPI(url) { (data: Search) in
+                let request = makeRequest()
+                APIManager.shared.requestAPI(request) { (data: Search) in
                     self.searchResult.append(contentsOf: data.results)
                 }
             }
@@ -263,7 +263,7 @@ extension SearchViewController {
     private func requestSearch() {
         guard let searchbar = navigationItem.searchController?.searchBar else { return }
         navigationItem.searchController?.searchBar.text = keyword
-        page = UrlConstants.page
+        page = APIConstants.startPage
         searchBarSearchButtonClicked(searchbar)
     }
 }

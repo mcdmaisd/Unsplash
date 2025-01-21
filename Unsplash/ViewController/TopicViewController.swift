@@ -156,9 +156,9 @@ extension TopicViewController {
 
     private func requestTopics() {
         for (i, title) in sectionTitles.enumerated() {
-            let url = UrlComponent.shared.topic(title.0)
+            let request = APIRouter.topic(id: title.0)
             group.enter()
-            NetworkManager.shared.requestAPI(url) { (data: [Photo]) in
+            APIManager.shared.requestAPI(request) { (data: [Photo]) in
                 self.topics[i] = data
                 self.group.leave()
             }
@@ -177,11 +177,11 @@ extension TopicViewController: sendData {
         let item = topics[tag][row]
         let id = item.id
         let vc = DetailViewController()
-        let url = UrlComponent.shared.statistics(id)
+        let request = APIRouter.statistics(id: id)
         
         vc.data = item
         
-        NetworkManager.shared.requestAPI(url) { data in
+        APIManager.shared.requestAPI(request) { data in
             vc.statistics = data
             self.navigationController?.pushViewController(vc, animated: true)
         }

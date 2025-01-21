@@ -39,7 +39,6 @@ struct ProfileImage: Codable {
 
 struct Statistics: Codable {
     let id: String
-    let slug: String
     let downloads: Downloads
     let views: Downloads
     let likes: Downloads
