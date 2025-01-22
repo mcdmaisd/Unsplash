@@ -12,7 +12,6 @@ import SnapKit
 class BaseCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: .zero)
-        contentView.backgroundColor = .gray
         configureHierarchy()
         configureLayout()
         configureView()

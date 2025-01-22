@@ -7,10 +7,10 @@
 
 import UIKit
 
-class CustomSwitch: UISwitch {
+final class CustomSwitch: UISwitch {
     
-    let color: UIColor
-    let switchTag: Int
+    private let color: UIColor
+    private let switchTag: Int
 
     init(color: UIColor, tag: Int) {
         self.color = color

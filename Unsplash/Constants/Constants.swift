@@ -9,7 +9,7 @@ import UIKit
 
 struct Constants {
     static let colors: [UIColor] = [.black, .white, .yellow, .red, .purple, .green, .blue]
-    static let tabBarImages = ["house", "magnifyingglass"]
+    static let tabBarImages = ["house", "play.rectangle.on.rectangle", "magnifyingglass"]
     static let chartTitles = ["조회수", "다운로드"]
     static let okActionTitle = "확인"
     static let noData = "출력 데이터가 없습니다."

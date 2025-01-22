@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SearchCollectionViewCell: BaseCollectionViewCell {
+final class SearchCollectionViewCell: BaseCollectionViewCell {
     
     private let thumbnail = UIImageView()
     private let outlineView = UIView()

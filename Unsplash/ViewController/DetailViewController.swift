@@ -8,7 +8,7 @@
 import UIKit
 import DGCharts
 
-class DetailViewController: BaseViewController {
+final class DetailViewController: BaseViewController {
     
     var data: Photo?
     var statistics: Statistics?
@@ -51,6 +51,8 @@ class DetailViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        makeNavigationBarTransparent()
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
         configureNavigationBar(self)
         configureTitle()
         configurePrefix()
@@ -200,7 +202,7 @@ extension DetailViewController {
         profileImage.kf.setImage(with: URL(string: data.user.profile_image.small))
         userName.text = data.user.name
         uploadDate.text = data.created_at.dateToString()
-        rawImage.kf.setImage(with: URL(string: data.urls.raw))
+        rawImage.kf.setImage(with: URL(string: data.urls.regular))
         
         valueStackView.addArrangedSubview(valueLabel(size))
         valueStackView.addArrangedSubview(valueLabel(views))

@@ -8,18 +8,22 @@
 import Foundation
 import Alamofire
 
-class APIManager {
+final class APIManager {
     static let shared = APIManager()
     
     private init() { }
     
-    func requestAPI<T: Codable>(_ router: APIRouter, _ completionHandler: @escaping (T) -> Void) {
+    func requestAPI<T: Codable>(_ router: APIRouter, _ completionHandler: @escaping (Result<T, Error>) -> Void) {
         AF.request(router).responseDecodable(of: T.self) { response in
-                switch response.result {
-                case .success(let value):
-                    completionHandler(value)
-                case .failure(let error):
-                    dump(error)
+            switch response.result {
+            case .success(let value):
+                completionHandler(.success(value))
+            case .failure(let error):
+                dump(error)
+                guard let statusCode = response.response?.statusCode else { return }
+                guard let result = HttpStatusCode(rawValue: statusCode)?.message else { return }
+                let errorMessage = ErrorMessage(message: result)
+                completionHandler(.failure(errorMessage))
             }
         }
     }

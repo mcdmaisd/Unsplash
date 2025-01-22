@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TopicTableViewCell: BaseTableViewCell {
+final class TopicTableViewCell: BaseTableViewCell {
     
     weak var delegate: sendData?
     

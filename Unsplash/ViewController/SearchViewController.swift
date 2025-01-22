@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SearchViewController: BaseViewController {
+final class SearchViewController: BaseViewController {
     
     private let orderButton = CustomButton()
     private let scrollView = UIScrollView()
@@ -34,9 +34,10 @@ class SearchViewController: BaseViewController {
     }
     
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout())
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
+        makeNavigationBarTransparent()
         initNavigationBar()
         configureOrderButton()
         configureColorSwitch()
@@ -128,19 +129,24 @@ extension SearchViewController: UISearchBarDelegate {
     
     private func searchImage() {
         let request = makeRequest()
-        
-        APIManager.shared.requestAPI(request) { [self] (data: Search) in
-            if page == 1 {
-                searchResult = data.results
-            } else {
-                searchResult.append(contentsOf: data.results)
+        APIManager.shared.requestAPI(request) { [self] (result: Result<Search, Error>) in
+            switch result {
+            case .success(let data):
+                if page == 1 {
+                    searchResult = data.results
+                } else {
+                    searchResult.append(contentsOf: data.results)
+                }
+                
+                if searchResult.isEmpty {
+                    statusLabel.text = Constants.emptySearchResult
+                }
+                
+                toggleUI()
+            case .failure(let error):
+                guard let error = error as? ErrorMessage else { return }
+                self.presentAlert(message: error.message)
             }
-            
-            if searchResult.isEmpty {
-                statusLabel.text = Constants.emptySearchResult
-            }
-            
-            toggleUI()
         }
     }
 }
@@ -154,7 +160,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         collectionView.prefetchDataSource = self
         collectionView.register(SearchCollectionViewCell.self, forCellWithReuseIdentifier: SearchCollectionViewCell.id)
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         searchResult.count
     }
@@ -162,7 +168,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let row = indexPath.row
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCollectionViewCell.id, for: indexPath) as! SearchCollectionViewCell
-
+        
         cell.configureData(searchResult[row])
         
         return cell
@@ -174,16 +180,23 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         isTouched.toggle()
         
         collectionView.deselectItem(at: indexPath, animated: true)
+        
         let row = indexPath.row
         let id = searchResult[row].id
         let vc = DetailViewController()
         let request = APIRouter.statistics(id: id)
         
         vc.data = searchResult[row]
-
-        APIManager.shared.requestAPI(request) { data in
-            vc.statistics = data
-            self.navigationController?.pushViewController(vc, animated: true)
+        
+        APIManager.shared.requestAPI(request) { (result: Result<Statistics, Error>) in
+            switch result {
+            case .success(let data):
+                vc.statistics = data
+                self.navigationController?.pushViewController(vc, animated: true)
+            case .failure(let error):
+                guard let error = error as? ErrorMessage else { return }
+                self.presentAlert(message: error.message)
+            }
         }
     }
 }
@@ -191,13 +204,20 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
 extension SearchViewController: UICollectionViewDataSourcePrefetching {
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         if total == page { return }
-
+        
         for indexPath in indexPaths {
             if indexPath.row > searchResult.count / 2 {
                 page += 1
                 let request = makeRequest()
-                APIManager.shared.requestAPI(request) { (data: Search) in
-                    self.searchResult.append(contentsOf: data.results)
+                
+                APIManager.shared.requestAPI(request) { (result: Result<Search, Error>) in
+                    switch result {
+                    case .success(let data):
+                        self.searchResult.append(contentsOf: data.results)
+                    case .failure(let error):
+                        guard let error = error as? ErrorMessage else { return }
+                        self.presentAlert(message: error.message)
+                    }
                 }
             }
         }

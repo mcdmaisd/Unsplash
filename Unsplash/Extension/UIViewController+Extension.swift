@@ -38,9 +38,15 @@ extension UIViewController {
     func configureNavigationBar(_ vc: UIViewController) {
         let backBarButtonItem = UIBarButtonItem(title: nil, style: .plain, target: self, action: #selector(back))
         let image = UIImage(systemName: Constants.backImageName)
-
+        
         backBarButtonItem.tintColor = .black
         backBarButtonItem.image = image
         vc.navigationItem.leftBarButtonItem = backBarButtonItem
+    }
+    
+    func makeNavigationBarTransparent() {
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
     }
 }

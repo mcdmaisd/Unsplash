@@ -12,8 +12,9 @@ enum APIRouter: URLRequestConvertible {
     case topic(id: String)
     case search(query: String, order: String, color: String, page: Int)
     case statistics(id: String)
+    case random
     
-    private typealias C = APIConstants //typealias naming convention -> UpperCamelCase
+    private typealias C = APIConstants
     
     private var baseURL: URL {
         return URL(string: C.baseURL)!
@@ -21,14 +22,14 @@ enum APIRouter: URLRequestConvertible {
     
     private var method: HTTPMethod {
         switch self {
-        case .topic, .search, .statistics:
+        case .topic, .search, .statistics, .random:
             return .get
         }
     }
     
     private var header: HTTPHeaders {
         switch self {
-        case .topic, .search, .statistics:
+        case .topic, .search, .statistics, .random:
             return [C.headerKey: "\(C.headerValue)\(Unsplash.id)"]
         }
     }
@@ -41,19 +42,21 @@ enum APIRouter: URLRequestConvertible {
             return makePath([C.search, C.photo])
         case .statistics(let id):
             return makePath([C.photo, id, C.statistics])
+        case .random:
+            return makePath([C.photo, C.random])
         }
     }
     
     private var parameter: Parameters? {
         switch self {
-        case .topic://연관값 미사용 시 생략 가능
+        case .topic, .statistics:
             return nil
         case .search(let query, let order, let color, let page):
             var result: [String: Any] = [C.query: query, C.order: order, C.page: page]
             if !color.isEmpty { result[C.color] = color }
             return result
-        case .statistics:
-            return nil
+        case .random:
+            return [C.count: C.randomCount]
         }
     }
         
