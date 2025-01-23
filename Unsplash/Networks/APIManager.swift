@@ -18,9 +18,7 @@ final class APIManager {
             switch response.result {
             case .success(let value):
                 completionHandler(value)
-            case .failure(let error):
-                dump(response)
-                // response 이용하면 별도의 열거형 필요 없을 것 같은데
+            case .failure:
                 guard let statusCode = response.response?.statusCode else { return }
                 guard let result = HttpStatusCode(rawValue: statusCode)?.message else { return }
                 view.presentAlert(message: result)
