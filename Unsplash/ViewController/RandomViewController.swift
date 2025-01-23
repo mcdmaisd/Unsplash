@@ -12,7 +12,6 @@ import SnapKit
 final class RandomViewController: BaseViewController {
     
     private let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .vertical)
-    private let group = DispatchGroup()
     
     private var images: [Photo] = []
     private var dataViewControllers: [UIViewController] = []
@@ -33,18 +32,15 @@ final class RandomViewController: BaseViewController {
     }
     
     private func setImages() {
+        let group = DispatchGroup()
+
         group.enter()
 
-        APIManager.shared.requestAPI(APIRouter.random) { (result: Result<[Photo], Error>) in
-            switch result {
-            case .success(let data):
-                self.images = data
-                self.group.leave()
-            case .failure(let error):
-                guard let error = error as? ErrorMessage else { return }
-                self.presentAlert(message: error.message)
-            }
+        APIManager.shared.requestAPI(APIRouter.random, self) { (data: [Photo]) in
+            self.images = data
+            group.leave()
         }
+        
         group.notify(queue: .main) { [self] in
             makeViewControllers()
         }

@@ -8,8 +8,7 @@
 import UIKit
 
 final class TopicViewController: BaseViewController {
-
-    private let group = DispatchGroup()
+    
     private let topicLabel = UILabel()
     private let tableView = UITableView()
     
@@ -62,7 +61,7 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.dataSource = self
         tableView.register(TopicTableViewCell.self, forCellReuseIdentifier: TopicTableViewCell.id)
     }
-
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         1
     }
@@ -116,13 +115,13 @@ extension TopicViewController {
         tableView.refreshControl = UIRefreshControl()
         tableView.refreshControl?.addTarget(self, action: #selector(whenTableViewPullDown), for: .valueChanged)
     }
-        
+    
     @objc
     private func whenTableViewPullDown() {
         let isMinuteAfter = getTimeInterval() >= Constants.minute
         let message = isMinuteAfter
-            ? Constants.pleaseWait
-            : "\(Constants.minute - getTimeInterval())\(Constants.lessThenMinuteSuffix)"
+        ? Constants.pleaseWait
+        : "\(Constants.minute - getTimeInterval())\(Constants.lessThenMinuteSuffix)"
         
         if lastRefreshTime == nil {
             lastRefreshTime = Date()
@@ -154,22 +153,18 @@ extension TopicViewController {
         let randomTopics = Array(Constants.topicDictionary).shuffled().prefix(3)
         sectionTitles = Array(randomTopics)
     }
-
+    
     private func requestTopics() {
+        let group = DispatchGroup()
+        
         for (i, title) in sectionTitles.enumerated() {
             let request = APIRouter.topic(id: title.0)
             
             group.enter()
             
-            APIManager.shared.requestAPI(request) { (result: Result<[Photo], Error>) in
-                switch result {
-                case .success(let data):
-                    self.topics[i] = data
-                    self.group.leave()
-                case .failure(let error):
-                    guard let error = error as? ErrorMessage else { return }
-                    self.presentAlert(message: error.message)
-                }
+            APIManager.shared.requestAPI(request, self) { (data: [Photo]) in
+                self.topics[i] = data
+                group.leave()
             }
         }
         // for loop 와 requesAPI는 다르게 동작한다(main.sync, global.async 차이)
@@ -179,7 +174,7 @@ extension TopicViewController {
     }
 }
 
-extension TopicViewController: sendData {
+extension TopicViewController: SendData {
     func sendData(_ tag: Int, _ row: Int) {
         if isTouched { return }
         
@@ -192,15 +187,9 @@ extension TopicViewController: sendData {
         
         vc.data = item
         
-        APIManager.shared.requestAPI(request) { (result: Result<Statistics, Error>) in
-            switch result {
-            case .success(let data):
-                vc.statistics = data
-                self.navigationController?.pushViewController(vc, animated: true)
-            case .failure(let error):
-                guard let error = error as? ErrorMessage else { return }
-                self.presentAlert(message: error.message)
-            }
+        APIManager.shared.requestAPI(request, self) { (data: Statistics) in
+            vc.statistics = data
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

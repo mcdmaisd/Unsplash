@@ -9,7 +9,7 @@ import UIKit
 
 final class TopicTableViewCell: BaseTableViewCell {
     
-    weak var delegate: sendData?
+    weak var delegate: SendData?
     
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout())
     

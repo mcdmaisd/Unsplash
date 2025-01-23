@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol sendData: AnyObject {
+protocol SendData: AnyObject {
     func sendData(_ tag: Int, _ row: Int)
 }

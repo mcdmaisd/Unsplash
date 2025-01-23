@@ -10,12 +10,12 @@ import Kingfisher
 import SnapKit
 
 class CustomViewController: BaseViewController {
-
+    
     var photo: Photo?
     
     private let randomImageView = UIImageView()
     private lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
-
+    
     override func configureHierarchy() {
         addSubView(randomImageView)
     }
@@ -52,15 +52,9 @@ class CustomViewController: BaseViewController {
         
         vc.data = photo
         
-        APIManager.shared.requestAPI(request) { (result: Result<Statistics, Error>) in
-            switch result {
-            case .success(let data):
-                vc.statistics = data
-                self.navigationController?.pushViewController(vc, animated: true)
-            case .failure(let error):
-                guard let error = error as? ErrorMessage else { return }
-                self.presentAlert(message: error.message)
-            }
+        APIManager.shared.requestAPI(request, self) { data in
+            vc.statistics = data
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

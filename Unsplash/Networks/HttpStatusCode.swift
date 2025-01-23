@@ -7,10 +7,6 @@
 
 import Foundation
 
-struct ErrorMessage: Error {
-    let message: String
-}
-
 enum HttpStatusCode: Int {
     case badRequest = 400
     case unauthorized = 401

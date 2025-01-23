@@ -34,7 +34,7 @@ final class SearchViewController: BaseViewController {
     }
     
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout())
-        
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         makeNavigationBarTransparent()
@@ -129,24 +129,19 @@ extension SearchViewController: UISearchBarDelegate {
     
     private func searchImage() {
         let request = makeRequest()
-        APIManager.shared.requestAPI(request) { [self] (result: Result<Search, Error>) in
-            switch result {
-            case .success(let data):
-                if page == 1 {
-                    searchResult = data.results
-                } else {
-                    searchResult.append(contentsOf: data.results)
-                }
-                
-                if searchResult.isEmpty {
-                    statusLabel.text = Constants.emptySearchResult
-                }
-                
-                toggleUI()
-            case .failure(let error):
-                guard let error = error as? ErrorMessage else { return }
-                self.presentAlert(message: error.message)
+        
+        APIManager.shared.requestAPI(request, self) { [self] (data: Search) in
+            if page == 1 {
+                searchResult = data.results
+            } else {
+                searchResult.append(contentsOf: data.results)
             }
+            
+            if searchResult.isEmpty {
+                statusLabel.text = Constants.emptySearchResult
+            }
+            
+            toggleUI()
         }
     }
 }
@@ -188,15 +183,9 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         
         vc.data = searchResult[row]
         
-        APIManager.shared.requestAPI(request) { (result: Result<Statistics, Error>) in
-            switch result {
-            case .success(let data):
-                vc.statistics = data
-                self.navigationController?.pushViewController(vc, animated: true)
-            case .failure(let error):
-                guard let error = error as? ErrorMessage else { return }
-                self.presentAlert(message: error.message)
-            }
+        APIManager.shared.requestAPI(request, self) { data in
+            vc.statistics = data
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }
@@ -210,14 +199,8 @@ extension SearchViewController: UICollectionViewDataSourcePrefetching {
                 page += 1
                 let request = makeRequest()
                 
-                APIManager.shared.requestAPI(request) { (result: Result<Search, Error>) in
-                    switch result {
-                    case .success(let data):
-                        self.searchResult.append(contentsOf: data.results)
-                    case .failure(let error):
-                        guard let error = error as? ErrorMessage else { return }
-                        self.presentAlert(message: error.message)
-                    }
+                APIManager.shared.requestAPI(request, self) { (data: Search) in
+                    self.searchResult.append(contentsOf: data.results)
                 }
             }
         }
