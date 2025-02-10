@@ -50,11 +50,11 @@ class CustomViewController: BaseViewController {
         let vc = DetailViewController()
         let request = APIRouter.statistics(id: photo.id)
         
-        vc.data = photo
+        vc.viewModel.input.data.value = photo
         
-        APIManager.shared.requestAPI(request, self) { data in
-            vc.statistics = data
-            self.navigationController?.pushViewController(vc, animated: true)
+        APIManager.shared.requestAPI(request, self) { [weak self] data in
+            vc.viewModel.input.statistics.value = data
+            self?.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

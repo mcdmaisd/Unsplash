@@ -13,7 +13,7 @@ final class APIManager {
     
     private init() { }
     
-    func requestAPI<T: Codable, U: UIViewController>(_ router: APIRouter, _ view: U, _ completionHandler: @escaping (T) -> Void) {
+    func requestAPI<T: Codable>(_ router: APIRouter, _ view: UIViewController, _ completionHandler: @escaping (T) -> Void) {
         AF.request(router).responseDecodable(of: T.self) { response in
             switch response.result {
             case .success(let value):

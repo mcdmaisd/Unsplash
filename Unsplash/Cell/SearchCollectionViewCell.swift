@@ -56,7 +56,7 @@ final class SearchCollectionViewCell: BaseCollectionViewCell {
     }
     
     func configureData(_ photo: Photo) {
-        thumbnail.kf.setImage(with: URL(string: photo.urls.regular))
+        thumbnail.kf.setImage(with: URL(string: photo.urls.small))
         likeLabel.text = "\("⭐️ ")\(photo.likes.formatted())"
     }
 }

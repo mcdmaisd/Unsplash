@@ -181,11 +181,11 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         let vc = DetailViewController()
         let request = APIRouter.statistics(id: id)
         
-        vc.data = searchResult[row]
+        vc.viewModel.input.data.value = searchResult[row]
         
-        APIManager.shared.requestAPI(request, self) { data in
-            vc.statistics = data
-            self.navigationController?.pushViewController(vc, animated: true)
+        APIManager.shared.requestAPI(request, self) { [weak self] data in
+            vc.viewModel.input.statistics.value = data
+            self?.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

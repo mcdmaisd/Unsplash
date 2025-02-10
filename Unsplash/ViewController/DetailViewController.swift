@@ -9,14 +9,11 @@ import UIKit
 import DGCharts
 
 final class DetailViewController: BaseViewController {
-    
-    var data: Photo?
-    var statistics: Statistics?
-    
     private var prefixStackView = UIStackView()
     private var valueStackView = UIStackView()
     private var chartView = LineChartView()
     
+    private(set) var viewModel = DetailViewModel()
     private let scrollView = UIScrollView()
     private let profileImage = UIImageView()
     private let userName = UILabel()
@@ -56,10 +53,17 @@ final class DetailViewController: BaseViewController {
         configureNavigationBar(self)
         configureTitle()
         configurePrefix()
-        configureData()
         configureSegmentControl()
         configureChart()
         segmentControlTapped(segmentControl)
+        binding()
+    }
+    
+    private func binding() {
+        viewModel.output.details.bind { [weak self] details in
+            guard let details else { return }
+            self?.configureData(details)
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -103,7 +107,7 @@ final class DetailViewController: BaseViewController {
         }
         
         rawImage.snp.makeConstraints { make in
-            guard let data = data else { return }
+            guard let data = viewModel.input.data.value else { return }
             let ratio = data.height/data.width
             make.top.equalTo(profileImage.snp.bottom).offset(10)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
@@ -128,7 +132,7 @@ final class DetailViewController: BaseViewController {
         chartView.snp.makeConstraints { make in
             make.top.equalTo(segmentControl.snp.bottom).offset(5)
             make.trailing.leading.equalTo(view.safeAreaLayoutGuide).inset(10)
-            make.height.equalTo(200)// 높이 명시 안하면 화면 표시 안됨
+            make.height.equalTo(view.safeAreaLayoutGuide.snp.width).dividedBy(2)
             make.bottom.equalToSuperview().offset(-5)
         }
     }
@@ -189,36 +193,27 @@ extension DetailViewController {
         segmentControl.addTarget(self, action: #selector(segmentControlTapped), for: .valueChanged)
     }
     
-    private func configureData() {
-        guard let data = data else { return }
-        guard let statistics = statistics else { return }
+    private func configureData(_ data: PhotoDetailData) {
+        profileImage.kf.setImage(with: URL(string: data.profile ?? ""))
+        userName.text = data.name ?? ""
+        uploadDate.text = data.date?.dateToString()
+        rawImage.kf.setImage(with: URL(string: data.url ?? ""))
         
-        let width = data.width
-        let height = data.height
-        let size = "\(Int(width)) x \(Int(height))"
-        let views = statistics.views.total.formatted()
-        let downloads = statistics.downloads.total.formatted()
-        
-        profileImage.kf.setImage(with: URL(string: data.user.profile_image.small))
-        userName.text = data.user.name
-        uploadDate.text = data.created_at.dateToString()
-        rawImage.kf.setImage(with: URL(string: data.urls.regular))
-        
-        valueStackView.addArrangedSubview(valueLabel(size))
-        valueStackView.addArrangedSubview(valueLabel(views))
-        valueStackView.addArrangedSubview(valueLabel(downloads))
+        valueStackView.addArrangedSubview(valueLabel(data.size ?? ""))
+        valueStackView.addArrangedSubview(valueLabel(data.views ?? ""))
+        valueStackView.addArrangedSubview(valueLabel(data.downloads ?? ""))
     }
     
     @objc
     private func segmentControlTapped(_ sender: UISegmentedControl) {
-        guard let data = statistics else { return }
-        
         let tag = sender.selectedSegmentIndex
-        let views = data.views.historical.values.map { $0.value }
-        let downloads = data.downloads.historical.values.map { $0.value }
-        let category = [views, downloads]
         
-        setLineData(chartView, entryData(values: category[tag]), Constants.chartTitles[tag])
+        viewModel.input.segmentControl.value = tag
+        viewModel.output.chartData.bind { [weak self] data in
+            guard let data, let self else { return }
+            let value = data.historical.values.map { $0.value }
+            self.setLineData(self.chartView, self.entryData(values: value), Constants.chartTitles[tag])
+        }
     }
 }
 

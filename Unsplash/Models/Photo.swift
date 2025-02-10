@@ -29,8 +29,8 @@ struct User: Codable {
 }
 
 struct Urls: Codable {
-    let raw: String
     let regular: String
+    let small: String
 }
 
 struct ProfileImage: Codable {

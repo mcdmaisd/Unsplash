@@ -167,7 +167,7 @@ extension TopicViewController {
                 group.leave()
             }
         }
-        // for loop 와 requesAPI는 다르게 동작한다(main.sync, global.async 차이)
+
         group.notify(queue: .main) {
             self.tableView.reloadData()
         }
@@ -185,11 +185,11 @@ extension TopicViewController: SendData {
         let vc = DetailViewController()
         let request = APIRouter.statistics(id: id)
         
-        vc.data = item
+        vc.viewModel.input.data.value = item
         
-        APIManager.shared.requestAPI(request, self) { (data: Statistics) in
-            vc.statistics = data
-            self.navigationController?.pushViewController(vc, animated: true)
+        APIManager.shared.requestAPI(request, self) { [weak self] data in
+            vc.viewModel.input.statistics.value = data
+            self?.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }
